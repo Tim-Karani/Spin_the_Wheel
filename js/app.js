@@ -1,356 +1,150 @@
 /* ==========================================================
-   SPIN2WIN - KIBAO EDITION
-   app.js
+   SPIN2WIN - COUNTY KIBAO
+   APPLICATION CONTROLLER
 ========================================================== */
 
 "use strict";
 
-/* ==========================================================
-   DOM
-========================================================== */
-
 let canvas = null;
 let spinButton = null;
 let loadingScreen = null;
-
-/* ==========================================================
-   STATE
-========================================================== */
-
 let isSpinning = false;
 
-/* ==========================================================
-   START
-========================================================== */
 
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    initializeApplication
-
-);
-
-/* ==========================================================
-   INITIALIZE
-========================================================== */
+document.addEventListener("DOMContentLoaded", initializeApplication);
 
 function initializeApplication(){
 
-    console.log("Starting Spin2Win...");
-
     cacheDOM();
-
     bindEvents();
-
     initializeModules();
-
     hideLoadingScreen();
-
 }
-
-/* ==========================================================
-   CACHE DOM
-========================================================== */
 
 function cacheDOM(){
-
     canvas = document.getElementById("wheelCanvas");
-
     spinButton = document.getElementById("spinBtn");
-
     loadingScreen = document.getElementById("loading-screen");
-
 }
-
-/* ==========================================================
-   MODULES
-========================================================== */
 
 function initializeModules(){
 
-    initializeModule(
-
-        "Popup",
-
-        initializePopup
-
-    );
-
-    initializeModule(
-
-        "Sounds",
-
-        initializeSounds
-
-    );
-
-    initializeModule(
-
-        "Wheel",
-
-        function(){
-
-            initializeWheel(
-
-                canvas
-
-            );
-
-        }
-
-    );
-
+    initializeModule("Popup", initializePopup);
+    initializeModule("Sounds", initializeSounds);
+    initializeModule("Wheel", function(){
+        initializeWheel(canvas);
+    });
 }
 
-/* ==========================================================
-   SAFE MODULE INITIALIZER
-========================================================== */
-
-function initializeModule(name,fn){
+function initializeModule(name, fn){
 
     if(typeof fn !== "function"){
-
-        console.warn(
-
-            `${name} module missing.`
-
-        );
-
+        console.warn(`${name} module missing.`);
         return;
-
     }
 
     try{
-
         fn();
-
-        console.log(
-
-            `✓ ${name} initialized`
-
-        );
-
     }
-
     catch(error){
-
-        console.error(
-
-            `${name} failed:`,
-
-            error
-
-        );
-
+        console.error(`${name} failed:`, error);
     }
-
 }
-
-/* ==========================================================
-   EVENTS
-========================================================== */
 
 function bindEvents(){
 
-    if(!spinButton){
-
-        return;
-
+    if(spinButton){
+        spinButton.addEventListener("click", startSpin);
     }
 
-    spinButton.addEventListener(
-
-        "click",
-
-        startSpin
-
-    );
-
+    /* The wheel is the primary visible control. */
+    window.startSpinFromWheel = startSpin;
 }
-
-/* ==========================================================
-   START SPIN
-========================================================== */
 
 function startSpin(){
 
     if(isSpinning){
-
         return;
-
     }
 
-    if(typeof getRandomPrize !== "function"){
-
-        console.error(
-
-            "getRandomPrize() missing."
-
-        );
-
+    if(typeof getRandomPrize !== "function" || typeof spinWheel !== "function"){
+        console.error("Spin engine is unavailable.");
         return;
-
     }
 
-    if(typeof spinWheel !== "function"){
+    const prize = getRandomPrize();
 
-        console.error(
-
-            "spinWheel() missing."
-
-        );
-
+    if(!prize){
+        console.warn("No enabled prizes are available.");
         return;
-
     }
 
     isSpinning = true;
 
-    spinButton.disabled = true;
+    if(spinButton){
+        spinButton.disabled = true;
+    }
 
     if(typeof playClickSound === "function"){
-
         playClickSound();
-
     }
 
     if(typeof playSpinSound === "function"){
-
         playSpinSound();
-
     }
 
-    const prize =
-
-        getRandomPrize();
-
-    spinWheel(
-
-        prize,
-
-        function(){
-
-            finishSpin(
-
-                prize
-
-            );
-
-        }
-
-    );
-
+    spinWheel(prize, function(landedPrize){
+        // The wheel engine determines the actual segment under the pointer.
+        finishSpin(landedPrize || prize);
+    });
 }
-
-/* ==========================================================
-   FINISH SPIN
-========================================================== */
 
 function finishSpin(prize){
 
     try{
 
         if(typeof recordSpin === "function"){
-
-            recordSpin(
-
-                prize
-
-            );
-
+            recordSpin(prize);
         }
 
         if(typeof playResultSound === "function"){
-
-            playResultSound(
-
-                prize
-
-            );
-
+            playResultSound(prize);
         }
 
         if(typeof showWinnerPopup === "function"){
-
-            showWinnerPopup(
-
-                prize
-
-            );
-
+            showWinnerPopup(prize);
         }
-
     }
-
     finally{
-
         isSpinning = false;
 
         if(spinButton){
-
             spinButton.disabled = false;
-
         }
-
     }
-
 }
-
-/* ==========================================================
-   LOADER
-========================================================== */
 
 function hideLoadingScreen(){
 
     if(!loadingScreen){
-
         return;
-
     }
 
     setTimeout(function(){
-
         loadingScreen.style.opacity = "0";
-
         loadingScreen.style.pointerEvents = "none";
 
         setTimeout(function(){
-
             loadingScreen.style.display = "none";
-
-        },400);
-
-    },500);
-
+        }, 350);
+    }, 250);
 }
 
-/* ==========================================================
-   DEBUG
-========================================================== */
-
-window.addEventListener(
-
-    "error",
-
-    function(event){
-
-        console.error(
-
-            "Application Error:",
-
-            event.message,
-
-            "\nFile:",
-
-            event.filename,
-
-            "\nLine:",
-
-            event.lineno
-
-        );
-
-    }
-
-);
+window.addEventListener("error", function(event){
+    console.error(
+        "Application Error:",
+        event.message,
+        "File:", event.filename,
+        "Line:", event.lineno
+    );
+});

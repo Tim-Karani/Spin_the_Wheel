@@ -1,202 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Spin2Win | Kibao Edition</title>
-
-    <!-- ==========================================================
-         GOOGLE FONTS
-    =========================================================== -->
-    <link rel="icon"
-          type="image/png"
-          href="assets/images/logo/logo.png">
-
-
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com">
-
-    <link rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
-    <!-- ==========================================================
-         CSS
-    =========================================================== -->
-
-    <link rel="stylesheet"
-          href="css/style.css">
-
-    <link rel="stylesheet"
-          href="css/animations.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>Spin the Wheel | County Kibao</title>
+    <link rel="icon" type="image/png" href="assets/images/logo/kk.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
 </head>
-
 <body>
 
-    <!-- ==========================================================
-         LOADING SCREEN
-    =========================================================== -->
-
-    <div id="loading-screen">
-
+    <div id="loading-screen" aria-live="polite">
         <div class="loader"></div>
-
-        <h2>Preparing your experience...</h2>
-
+        <p>Preparing the Kibao wheel...</p>
     </div>
 
-    <!-- ==========================================================
-         APPLICATION
-    =========================================================== -->
+    <main class="app" aria-label="County Kibao Spin the Wheel game">
 
-    <main class="app">
+        <section class="wheel-stage">
 
-        <!-- ======================================================
-             HEADER
-        ======================================================= -->
-
-        <header class="header">
-
-            <div class="logo">
-
-                <img src="assets/images/logo/black.png"
-                     alt="">
-
-            </div>
-
-        </header>
-
-        <!-- ======================================================
-             GAME AREA
-        ======================================================= -->
-
-        <section class="wheel-section">
-
-            <!-- Pointer -->
-
-            <div class="pointer">
-
-                ▼
-
-            </div>
-
-            <!-- Wheel -->
+            <!-- Fixed result pointer. The supplied artwork remains untouched. -->
+            <div class="pointer" aria-hidden="true"></div>
 
             <div class="wheel-wrapper">
-
-                <canvas id="wheelCanvas">
-
-                    Your browser does not support HTML5 Canvas.
-
-                </canvas>
-
+                <canvas id="wheelCanvas" aria-label="Spin the wheel"></canvas>
             </div>
 
-        </section>
-
-        <!-- ======================================================
-             BUTTON
-        ======================================================= -->
-
-        <section class="controls">
-
-            <button id="spinBtn">
-
-                🎯 SPIN TO WIN
-
+            <button id="spinBtn" type="button" aria-label="Spin the wheel">
+                SPIN
             </button>
 
+            <p class="spin-hint">Tap the wheel to spin</p>
+
         </section>
-
-        <!-- ======================================================
-             FOOTER
-        ======================================================= -->
-
-        <footer>
-
-            <p>
-
-                Powered by
-                <strong>Spin2Win</strong>
-
-                &nbsp;|&nbsp;
-
-                © 2026 Kibao Experience
-
-            </p>
-
-        </footer>
 
     </main>
 
-    <!-- ==========================================================
-     RESULT POPUP
-========================================================== -->
-
-<div class="popup-overlay hidden"
-     id="winnerPopup">
-
-    <div class="popup-card">
-
-        <div class="popup-icon"
-             id="popupIcon">
-
-            🎉
-
+    <div class="popup-overlay hidden" id="winnerPopup">
+        <div class="popup-card" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+            <div class="popup-icon" id="popupIcon">🎉</div>
+            <h2 id="popupTitle">Congratulations!</h2>
+            <p id="popupSubtitle">You have won</p>
+            <h1 id="winnerName">Bucket Hat</h1>
+            <p class="popup-message" id="popupMessage">
+                Please visit the Kibao activation desk to collect your prize.
+            </p>
+            <div class="popup-buttons">
+                <button id="closePopup" type="button">COLLECT PRIZE</button>
+            </div>
         </div>
-
-        <h2 id="popupTitle">
-
-            Congratulations!
-
-        </h2>
-
-        <p id="popupSubtitle">
-
-            You have won
-
-        </p>
-
-        <h1 id="winnerName">
-
-            Bucket Hat
-
-        </h1>
-
-        <p class="popup-message"
-           id="popupMessage">
-
-            Please visit the Kibao desk
-            to collect your prize.
-
-        </p>
-
-        <div class="popup-buttons">
-
-            <button id="closePopup">
-
-                COLLECT PRIZE
-
-            </button>
-
-        </div>
-
     </div>
-
-</div>
-
-    <!-- ==========================================================
-         JAVASCRIPT
-    =========================================================== -->
 
     <script src="js/storage.js"></script>
     <script src="js/prizes.js"></script>
@@ -207,5 +61,4 @@
     <script src="js/app.js"></script>
 
 </body>
-
 </html>

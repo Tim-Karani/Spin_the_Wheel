@@ -1,203 +1,154 @@
 /* ==========================================================
    SPIN2WIN - KIBAO EDITION
-   prizes.js
+   Reference wheel prize configuration
 ========================================================== */
-
-/**
- * Default prize configuration.
- * If the admin has previously saved custom prizes,
- * those values will overwrite these defaults.
- */
 
 const DEFAULT_PRIZES = [
 
     {
         id:1,
-        name:"KES 100 Airtime",
-        chance:8,
-        color:"#43A047",
-        textColor:"#FFFFFF",
-        image:"assets/images/prizes/credit.png",
-        enabled:true,
-        type:"win"
-    },
-
-    {
-        id:2,
-        name:"Try Again",
-        chance:24,
-        color:"#E31E24",
-        textColor:"#FFFFFF",
-        image:"assets/images/prizes/try_again.png",
+        designSlot:8,
+        name:"Try Again Next Time",
+        chance:24.5,
+        color:"#F3BB17",
+        textColor:"#DB1212",
+        image:"",
         enabled:true,
         type:"retry"
     },
 
     {
-        id:3,
-        name:"T-Shirt",
-        chance:5,
-        color:"#FFE100",
-        textColor:"#C62828",
-        image:"assets/images/prizes/tshirt.png",
+        id:2,
+        designSlot:1,
+        name:"Bucket Hat",
+        chance:0.5,
+        color:"#FFFFFF",
+        textColor:"#771030",
+        image:"assets/images/reference/bucket_hat.png",
         enabled:true,
         type:"win"
     },
 
     {
-        id:4,
-        name:"Chaser",
-        chance:5,
-        color:"#43A047",
+        id:3,
+        designSlot:2,
+        name:"Try Again Next Time",
+        chance:24.5,
+        color:"#771030",
         textColor:"#FFFFFF",
-        image:"assets/images/prizes/chaser.png",
+        image:"",
+        enabled:true,
+        type:"retry"
+    },
+
+    {
+        id:4,
+        designSlot:3,
+        name:"T-Shirt",
+        chance:0.5,
+        color:"#DB1212",
+        textColor:"#FFFFFF",
+        image:"assets/images/reference/tshirt.png",
         enabled:true,
         type:"win"
     },
 
     {
         id:5,
-        name:"Try Again",
-        chance:24,
-        color:"#E31E24",
-        textColor:"#FFFFFF",
-        image:"assets/images/prizes/try_again.png",
+        designSlot:4,
+        name:"Try Again Next Time",
+        chance:24.5,
+        color:"#F3BB17",
+        textColor:"#DB1212",
+        image:"",
         enabled:true,
         type:"retry"
     },
 
     {
         id:6,
-        name:"Bucket Hat",
-        chance:5,
-        color:"#FFE100",
-        textColor:"#C62828",
-        image:"assets/images/prizes/bucket_hat.png",
+        designSlot:5,
+        name:"Wristband",
+        chance:0.5,
+        color:"#FFFFFF",
+        textColor:"#771030",
+        image:"assets/images/reference/wristband.png",
         enabled:true,
         type:"win"
     },
 
     {
         id:7,
-        name:"KES 100 Airtime",
-        chance:8,
-        color:"#43A047",
+        designSlot:6,
+        name:"Try Again Next Time",
+        chance:24.5,
+        color:"#771030",
         textColor:"#FFFFFF",
-        image:"assets/images/prizes/credit.png",
+        image:"",
         enabled:true,
-        type:"win"
+        type:"retry"
     },
 
     {
         id:8,
-        name:"Try Again",
-        chance:21,
-        color:"#E31E24",
+        designSlot:7,
+        name:"Tumbler",
+        chance:0.5,
+        color:"#DB1212",
         textColor:"#FFFFFF",
-        image:"assets/images/prizes/try_again.png",
+        image:"assets/images/reference/tumbler.png",
         enabled:true,
-        type:"retry"
+        type:"win"
     }
-
 ];
 
-/* ==========================================================
-   LOCAL STORAGE KEY
-========================================================== */
-
-const PRIZE_STORAGE_KEY = "spin2win_prizes";
-
-/* ==========================================================
-   LOAD PRIZES
-========================================================== */
+/* Versioned key forces the redesigned wheel defaults to load once
+   instead of retaining the old 2026 wheel configuration. */
+const PRIZE_STORAGE_KEY = "spin2win_prizes_kibao_reference_v3";
 
 function loadPrizes(){
 
     const stored = localStorage.getItem(PRIZE_STORAGE_KEY);
 
     if(!stored){
-
-        return DEFAULT_PRIZES;
-
+        return DEFAULT_PRIZES.map(prize => ({...prize}));
     }
 
     try{
-
         return JSON.parse(stored);
-
     }
-
     catch(error){
-
         console.error("Unable to load saved prizes.");
-
-        return DEFAULT_PRIZES;
-
+        return DEFAULT_PRIZES.map(prize => ({...prize}));
     }
-
 }
-
-/* ==========================================================
-   SAVE PRIZES
-========================================================== */
 
 function savePrizes(prizes){
-
-    localStorage.setItem(
-
-        PRIZE_STORAGE_KEY,
-
-        JSON.stringify(prizes)
-
-    );
-
+    localStorage.setItem(PRIZE_STORAGE_KEY, JSON.stringify(prizes));
 }
-
-/* ==========================================================
-   RESET TO DEFAULTS
-========================================================== */
 
 function resetPrizes(){
-
-    savePrizes(DEFAULT_PRIZES);
-
+    savePrizes(DEFAULT_PRIZES.map(prize => ({...prize})));
 }
-
-/* ==========================================================
-   GET ENABLED PRIZES
-========================================================== */
 
 function getEnabledPrizes(){
-
     return loadPrizes().filter(prize => prize.enabled);
-
 }
-
-/* ==========================================================
-   GET TOTAL CHANCE
-========================================================== */
 
 function getTotalChance(){
-
-    const prizes = getEnabledPrizes();
-
-    return prizes.reduce(
-
-        (sum, prize) => sum + prize.chance,
-
+    return getEnabledPrizes().reduce(
+        (sum, prize) => sum + Number(prize.chance || 0),
         0
-
     );
-
 }
-
-/* ==========================================================
-   WEIGHTED RANDOM SELECTION
-========================================================== */
 
 function getRandomPrize(){
 
     const prizes = getEnabledPrizes();
+
+    if(!prizes.length){
+        return null;
+    }
 
     const totalChance = getTotalChance();
 
@@ -205,16 +156,12 @@ function getRandomPrize(){
 
     for(const prize of prizes){
 
-        random -= prize.chance;
+        random -= Number(prize.chance || 0);
 
         if(random <= 0){
-
             return prize;
-
         }
-
     }
 
-    return prizes[0];
-
+    return prizes[prizes.length - 1];
 }
